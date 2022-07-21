@@ -12,7 +12,8 @@
   
     "permissions": [
         "activeTab",
-        "http://localhost/*"
+        "http://localhost/*",
+        "https://sword-6kch5eewwq-uw.a.run.app/*"
     ],
   
     "browser_action": {

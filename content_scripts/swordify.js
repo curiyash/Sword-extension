@@ -99,7 +99,7 @@
         let syn = meta[` ${poSpeech}`][1][' Synonyms'];
         let ant = meta[` ${poSpeech}`][1][' Antonyms'];
         let rel = meta[` ${poSpeech}`][1][' Related terms'];
-        const url = `http://localhost:8000/pos/${word}/${poSpeech}/${syn}/${ant}/${rel}/`;
+        const url = `https://sword-6kch5eewwq-uw.a.run.app/pos/${word}/${poSpeech}/${syn}/${ant}/${rel}`;
         caller(url, parentDiv, meaningsDiv, imgDiv);
         console.log("Here");
       }
@@ -178,7 +178,7 @@
       newAudioA = document.createElement('audio');
       newAudioA.className = 'src-audio';
       newSource = document.createElement('source');
-      const url = `http://localhost:8000/wiki/${word.toLowerCase().trim()}/`;
+      const url = `https://sword-6kch5eewwq-uw.a.run.app/wiki/${word.toLowerCase().trim()}`;
       if (word===""){
             box.classList.remove("box");
             newDiv.removeChild(miniImg);

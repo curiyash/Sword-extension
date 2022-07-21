@@ -10,6 +10,7 @@
     width: 420px;
     max-height: 420px;
     overflow: scroll;
+    font-family: Arial, Helvetica, sans-serif;
   }
   .para-word {
     padding-left: 21px;
