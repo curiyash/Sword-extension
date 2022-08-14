@@ -4,6 +4,45 @@
      * If this content script is injected into the same page again,
      * it will do nothing next time.
      */
+
+    class Stack{
+      constructor(){
+          this.items = [];
+      }
+
+      push(element){
+          this.items.push(element);
+      }
+
+      pop(){
+          return this.items.pop();
+      }
+
+      isEmpty(){
+          return this.items.length===0;
+      }
+
+      isFull(){
+          return this.items.length===100;
+      }
+
+      top(){
+          return this.items[this.items.length-1];
+      }
+
+      getAllItems(){
+        this.items.forEach((item)=>{
+          console.log(item);
+        })
+      }
+
+      clear(){
+        while (this.items.length!==0){
+          this.items.pop();
+        }
+      }
+    }
+
     console.log("Swordifying");
     if (window.hasRun) {
       return;
@@ -11,11 +50,6 @@
     window.hasRun = true;
     let images = [];
     let meta;
-    /**
-     * Given a URL to a beast image, remove all existing beasts, then
-     * create and style an IMG node pointing to
-     * that image, then insert the node into the document.
-     */
 
      function minimize(e){
       console.log("Here1");
@@ -25,7 +59,7 @@
       w.style.overflow = "hidden";
       w.style.width = `${text.clientWidth+this.clientWidth+64}px`;
       console.log(this.clientWidth);
-      w.style.height = `${box.clientHeight+10}px`;
+      w.style.height = `${box.clientHeight+10+36}px`;
       w.removeChild(miniImg);
       w.appendChild(maxiImg);
     }
@@ -40,17 +74,26 @@
       w.appendChild(miniImg);
     }
 
+    let history = new Stack();
+    let future = new Stack();
+
     let timer;
     let maxiImg = document.createElement('img');
     maxiImg.onclick = maximize;
-    // maxiImg.src = 'https://i.ibb.co/zs20fy4/maximize.png';
     maxiImg.src = 'https://i.ibb.co/PGkyfW7/plus.png'
     maxiImg.id = 'window';
     let miniImg = document.createElement('img');
     miniImg.id = 'window';
     miniImg.onclick = minimize;
-    // miniImg.src = "https://i.ibb.co/ZHPFwFs/minimize.png";
     miniImg.src = "https://i.ibb.co/ZNsHrhQ/minus.png";
+
+    let back = document.createElement('img');
+    back.classList.add("navigate-elem");
+    back.src = "https://i.ibb.co/zxBDWc3/left.png";
+
+    let front = document.createElement('img');
+    front.classList.add("navigate-elem");
+    front.src = "https://i.ibb.co/ZTvhh4S/right.png";
 
     function playAudio(){
       clearInterval(timer);
@@ -132,26 +175,30 @@
       }
     }
 
-    function insertMeaning() {
-      console.log("Inside");
+    function insertMeaning(navigating, dir) {
       let poses = [];
       let selection = window.getSelection();
-      let word = selection.toString()
-    //   let rect = selection.getRangeAt(0).getBoundingClientRect();
+      let word;
       var r=window.getSelection().getRangeAt(0).getBoundingClientRect();
       var relative=document.body.parentNode.getBoundingClientRect();
-      removeExistingWords();
-      let newDiv = document.createElement("div");      
+      let newDiv = document.createElement("div");
+      if (navigating===false){
+        word = selection.toString()
+        future.clear();
+        removeExistingWords();
+      } else{
+        if (dir===0){
+          word = history.pop();
+        } else{
+          word = future.pop();
+        }
+      }
 
-      // let newP = document.createElement("p");
       newDiv.className = "word";
       newDiv.classList.add('unstick');
-      // newP.style.inlineSize = "210px";
-      // newP.style.overflow = "hidden";
-      // newP.className = "para-word"
-      // newDiv.style.position = "absolute";
       newDiv.style.top = `calc(${r.top}px - ${relative.top}px - 72px)`;
       newDiv.style.left = `calc(${r.left}px`;
+      newDiv.style.zIndex = '2147483647';
       let newH = document.createElement('div');
       let newHA = document.createElement('a');
       newH.appendChild(newHA);
@@ -178,8 +225,12 @@
       newAudioA = document.createElement('audio');
       newAudioA.className = 'src-audio';
       newSource = document.createElement('source');
+
+      let navigate = document.createElement('div');
+      navigate.classList.add("navigate");
+
       const url = `https://sword-6kch5eewwq-uw.a.run.app/wiki/${word.toLowerCase().trim()}`;
-      if (word===""){
+      if (word==="" || word===undefined){
             box.classList.remove("box");
             newDiv.removeChild(miniImg);
             box.classList.add("not-found");
@@ -193,8 +244,8 @@
             newDiv.appendChild(box);
             document.body.appendChild(newDiv);
             dragElement(document.getElementsByClassName("not-found")[0]);
-      return;
-      }
+            return;
+      } 
       async function getJSON(){
       fetch(url)
         .then(response => response.json())
@@ -241,8 +292,6 @@
                 newHA.href = `https://en.wiktionary.org/wiki/${value}`
               }else if (key==="pos"){
                 let sp = document.getElementsByClassName('pos');
-                console.log(sp);
-                console.log(value);
                 for (const s of sp){
                   if (value==s.innerText){
                     s.classList.add("active");
@@ -294,8 +343,10 @@
       if (word!==''){
         box.appendChild(newH);
         box.appendChild(newAudio);
+        navigate.appendChild(back);
+        navigate.appendChild(front);
+        newDiv.appendChild(navigate);
         newDiv.appendChild(box);
-        // newDiv.appendChild(newSpan);
         newDiv.appendChild(posDiv);
         newDiv.appendChild(meaningsDiv);
         console.log(poses);
@@ -309,11 +360,68 @@
       // Make the DIV element draggable:
       dragElement(document.getElementsByClassName("box")[0]);
     }
+
+    function popBack(){
+      let w = document.getElementsByClassName('wordText');
+      if (w.length!==0){
+        w = w[0].innerText
+      } else{
+        w = null;
+      }
+      if (w){
+        future.push(w);
+      }
+      let existingBeasts = document.querySelectorAll(".word");
+      for (let beast of existingBeasts) {
+        beast.remove();
+      }
+    }
+
+    function popFront(){
+      let w = document.getElementsByClassName('wordText');
+      if (w.length!==0){
+        w = w[0].innerText
+      } else{
+        w = null;
+      }
+      if (w){
+        history.push(w);
+      }
+      let existingBeasts = document.querySelectorAll(".word");
+      for (let beast of existingBeasts) {
+        beast.remove();
+      }
+    }
+
+    function goFront(){
+      if (future.isEmpty()){
+        return;
+      }
+      popFront();
+      insertMeaning(true, 1);
+    }
+    front.onclick = goFront;
+
+    function goBack(){
+      if (history.isEmpty()){
+        return;
+      }
+      popBack();
+      insertMeaning(true, 0);
+    }
+    back.onclick = goBack;
     
-    /**
-     * Remove every beast from the page.
-     */
     function removeExistingWords() {
+      let w = document.getElementsByClassName('wordText');
+      if (w.length!==0){
+        w = w[0].innerText
+      } else{
+        w = null;
+      }
+      if (w){
+        history.push(w);
+        history.getAllItems();
+      }
       let existingBeasts = document.querySelectorAll(".word");
       for (let beast of existingBeasts) {
         beast.remove();
@@ -343,14 +451,10 @@
         }
       }
     }
-  
-    /**
-     * Listen for messages from the background script.
-     * Call "insertBeast()" or "removeExistingBeasts()".
-     */
+
     browser.runtime.onMessage.addListener((message) => {
       if (message.command === "swordify") {
-        insertMeaning();
+        insertMeaning(false, 0);
       } else if (message.command === "hide"){
         hide();
       } else if (message.command === "show"){
@@ -364,40 +468,28 @@
       var pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
       var movee = document.getElementsByClassName('word')[0];
       elmnt.onmousedown = dragMouseDown;
-    //   if (document.getElementById(elmnt.id + "header")) {
-        // if present, the header is where you move the DIV from:
-        // document.getElementById(elmnt.id + "header").onmousedown = dragMouseDown;
-    //   } else {
-        // otherwise, move the DIV from anywhere inside the DIV:
-        // elmnt.onmousedown = dragMouseDown;
-    //   }
     
       function dragMouseDown(e) {
         e = e || window.event;
         e.preventDefault();
-        // get the mouse cursor position at startup:
         pos3 = e.clientX;
         pos4 = e.clientY;
         document.onmouseup = closeDragElement;
-        // call a function whenever the cursor moves:
         document.onmousemove = elementDrag;
       }
     
       function elementDrag(e) {
         e = e || window.event;
         e.preventDefault();
-        // calculate the new cursor position:
         pos1 = pos3 - e.clientX;
         pos2 = pos4 - e.clientY;
         pos3 = e.clientX;
         pos4 = e.clientY;
-        // set the element's new position:
         movee.style.top = (movee.offsetTop - pos2) + "px";
         movee.style.left = (movee.offsetLeft - pos1) + "px";
       }
     
       function closeDragElement() {
-        // stop moving when mouse button is released:
         document.onmouseup = null;
         document.onmousemove = null;
       }

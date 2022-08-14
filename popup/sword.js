@@ -40,7 +40,7 @@
   .box {
     display: flex;
     align-items: center;
-    margin-top: 10px;
+    margin-top: -10px;
     cursor: move;
   }
   #window{
@@ -57,6 +57,14 @@
   }
   .unstick {
     position: absolute;
+  }
+  .navigate {
+    display: flex;
+    margin-top: 10px;
+    margin-left: 18px;
+  }
+  .navigate-elem {
+    margin-right: 21px;
   }
   `;
 

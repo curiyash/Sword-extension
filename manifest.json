@@ -15,7 +15,7 @@
         "http://localhost/*",
         "https://sword-6kch5eewwq-uw.a.run.app/*"
     ],
-  
+
     "browser_action": {
       "default_icon": "icons/dict-32.png",
       "default_title": "Sword",
