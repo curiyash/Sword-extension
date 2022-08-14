@@ -142,7 +142,8 @@
         let syn = meta[` ${poSpeech}`][1][' Synonyms'];
         let ant = meta[` ${poSpeech}`][1][' Antonyms'];
         let rel = meta[` ${poSpeech}`][1][' Related terms'];
-        const url = `https://sword-6kch5eewwq-uw.a.run.app/pos/${word}/${poSpeech}/${syn}/${ant}/${rel}`;
+        // const url = `https://sword-6kch5eewwq-uw.a.run.app/pos/${word}/${poSpeech}/${syn}/${ant}/${rel}`;
+        const url = `http://localhost:8000/pos/${word}/${poSpeech}/${syn}/${ant}/${rel}`;
         caller(url, parentDiv, meaningsDiv, imgDiv);
         console.log("Here");
       }
@@ -186,18 +187,20 @@
         word = selection.toString()
         future.clear();
         removeExistingWords();
+        newDiv.style.top = `calc(${r.top}px - ${relative.top}px - 72px)`;
+        newDiv.style.left = `calc(${r.left}px`;
       } else{
         if (dir===0){
           word = history.pop();
         } else{
           word = future.pop();
         }
+        newDiv.style.top = `calc(${window.scrollY}px + 42px)`;
+        newDiv.style.right = `calc(${window.scrollX}px + 42px)`;
       }
 
       newDiv.className = "word";
       newDiv.classList.add('unstick');
-      newDiv.style.top = `calc(${r.top}px - ${relative.top}px - 72px)`;
-      newDiv.style.left = `calc(${r.left}px`;
       newDiv.style.zIndex = '2147483647';
       let newH = document.createElement('div');
       let newHA = document.createElement('a');
@@ -229,7 +232,8 @@
       let navigate = document.createElement('div');
       navigate.classList.add("navigate");
 
-      const url = `https://sword-6kch5eewwq-uw.a.run.app/wiki/${word.toLowerCase().trim()}`;
+      // const url = `https://sword-6kch5eewwq-uw.a.run.app/wiki/${word.trim()}`;
+      const url = `http://localhost:8000/wiki/${word.trim()}`;
       if (word==="" || word===undefined){
             box.classList.remove("box");
             newDiv.removeChild(miniImg);
@@ -265,7 +269,7 @@
             box.style.paddingRight = "10px";
             box.style.paddingLeft = "10px";
             let a = document.createElement('a');
-            a.href = `https://www.google.com/search?q=${word.toLowerCase().trim()} meaning`;
+            a.href = `https://www.google.com/search?q=${word.trim()} meaning`;
             a.innerText = "How about Googling it?"
             box.appendChild(a);
             newDiv.appendChild(box);
